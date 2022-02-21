@@ -176,7 +176,6 @@ def make_rainfall_plots():
 
 st.pyplot(make_rainfall_plots())
 
-
 # from matplotlib.legend import Legend
 # from matplotlib import colors, cm
 # import copy
@@ -198,101 +197,270 @@ st.pyplot(make_rainfall_plots())
 # df_testing_set["x_coord"] = round((df_testing_set["x-coordinate"] - xllcorner) / cellsize)
 # df_testing_set["y_coord"] = 253 - round((df_testing_set["y-coordinate"] - yllcorner) / cellsize)
 
+option = st.selectbox(
+    'Which model would you like to choose',
+    ('KNN', 'Decision Tree', 'SVM'))
 
-def predict_user_point(my_points, x_input):
-    # colors_land1 = plt.cm.terrain(np.linspace(0.35, 0.42, 200))
-    # colors_land2 = plt.cm.terrain(np.linspace(0.45, 0.85, 2000))
-    #
-    # _colors = np.vstack((colors_land1, colors_land2))
-    # cut_terrain_map = colors.LinearSegmentedColormap.from_list('cut_terrain', _colors)
-    #
-    # img_transparent_back = copy.copy(img)
-    # img_transparent_back[img_transparent_back < 0.005] = np.nan
-    #
-    # with sns.plotting_context("talk"):
-    #     fig, ax = plt.subplots(figsize=(15, 9))
-    #     sns.heatmap(
-    #         data=df,
-    #         vmin=0,
-    #         vmax=5000,
-    #         cmap=cut_terrain_map,
-    #         zorder=1
-    #     )
-    #
-    #     ax.imshow(
-    #         img_transparent_back,
-    #         extent=[-30, 410, 265, -10],
-    #         zorder=2,
-    #         alpha=0.25,  # transparentność
-    #
-    #     )
+if option == 'KNN':
 
-    fig, axis = plt.subplots(nrows=1, ncols=1, figsize=(18, 9))
-
-    sns.scatterplot(
-        x=df_testing_set['x-coordinate'],
-        y=df_testing_set['y-coordinate'],
-        s=y_test_pred_svm / 2,
-        hue=y_test_pred_svm,
-        palette=sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True),
-    ).set(title='SVM r2 score: ' + str(score_svm))
-
-    _, labels_init = axis.get_legend_handles_labels()
-    n_labels = len(labels_init)
-
-    legend1 = axis.legend()
-    axis.add_artist(legend1)
-
-    for my_point in my_points.values():
-        my_point_scaled = scaler.transform(my_point)
-        my_point_pred = regression_model_svm.predict(my_point_scaled)
-        my_point_pred = np.round(my_point_pred)
-        sns.scatterplot(
-            x=[my_point[0][0]],
-            y=[my_point[0][1]],
-            s=my_point_pred[0] / 2,
-            label=my_point_pred[0]
-        )
-
-        # arrowprops = dict(
-        #     arrowstyle="->",
-        #     connectionstyle="angle, angleA = 0, angleB = 90,\
-        #     rad = 10")
+    def predict_user_point_SVM(my_points, x_input):
+        # colors_land1 = plt.cm.terrain(np.linspace(0.35, 0.42, 200))
+        # colors_land2 = plt.cm.terrain(np.linspace(0.45, 0.85, 2000))
         #
-        # plt.annotate(
-        #     my_point_pred[0],
-        #     xy=(my_point[0][0], my_point[0][1] - 10),
-        #     xytext=(my_point[0][0], my_point[0][1] - 25000),
-        #     arrowprops=arrowprops
-        # )
+        # _colors = np.vstack((colors_land1, colors_land2))
+        # cut_terrain_map = colors.LinearSegmentedColormap.from_list('cut_terrain', _colors)
+        #
+        # img_transparent_back = copy.copy(img)
+        # img_transparent_back[img_transparent_back < 0.005] = np.nan
+        #
+        # with sns.plotting_context("talk"):
+        #     fig, ax = plt.subplots(figsize=(15, 9))
+        #     sns.heatmap(
+        #         data=df,
+        #         vmin=0,
+        #         vmax=5000,
+        #         cmap=cut_terrain_map,
+        #         zorder=1
+        #     )
+        #
+        #     ax.imshow(
+        #         img_transparent_back,
+        #         extent=[-30, 410, 265, -10],
+        #         zorder=2,
+        #         alpha=0.25,  # transparentność
+        #
+        #     )
 
-    handles, labels = axis.get_legend_handles_labels()
-    handles, labels = handles[n_labels:], labels[n_labels:]
+        fig, axis = plt.subplots(nrows=1, ncols=1, figsize=(18, 9))
 
-    if handles:
-        legend2 = axis.legend(
-            handles=handles,
-            labels=[float(label) for label in labels],
-            loc='upper left'
-        )
-        axis.add_artist(legend2)
+        sns.scatterplot(
+            x=df_testing_set['x-coordinate'],
+            y=df_testing_set['y-coordinate'],
+            s=y_test_pred / 2,
+            hue=y_test_pred,
+            palette=sns.color_palette('ch:start=.7,rot=-.3', as_cmap=True),
+        ).set(title='KNN r2 score: ' + str(score_knn))
 
-    return fig
+        _, labels_init = axis.get_legend_handles_labels()
+        n_labels = len(labels_init)
+
+        legend1 = axis.legend()
+        axis.add_artist(legend1)
+
+        for my_point in my_points.values():
+            my_point_scaled = scaler.transform(my_point)
+            my_point_pred = neighbors.predict(my_point_scaled)
+            my_point_pred = np.round(my_point_pred)
+            sns.scatterplot(
+                x=[my_point[0][0]],
+                y=[my_point[0][1]],
+                s=my_point_pred[0] / 2,
+                label=my_point_pred[0]
+            )
+
+            # arrowprops = dict(
+            #     arrowstyle="->",
+            #     connectionstyle="angle, angleA = 0, angleB = 90,\
+            #     rad = 10")
+            #
+            # plt.annotate(
+            #     my_point_pred[0],
+            #     xy=(my_point[0][0], my_point[0][1] - 10),
+            #     xytext=(my_point[0][0], my_point[0][1] - 25000),
+            #     arrowprops=arrowprops
+            # )
+
+        handles, labels = axis.get_legend_handles_labels()
+        handles, labels = handles[n_labels:], labels[n_labels:]
+
+        if handles:
+            legend2 = axis.legend(
+                handles=handles,
+                labels=[float(label) for label in labels],
+                loc='upper left'
+            )
+            axis.add_artist(legend2)
+
+        return fig
+
+if option == 'Decision Tree':
+
+    def predict_user_point_SVM(my_points, x_input):
+        # colors_land1 = plt.cm.terrain(np.linspace(0.35, 0.42, 200))
+        # colors_land2 = plt.cm.terrain(np.linspace(0.45, 0.85, 2000))
+        #
+        # _colors = np.vstack((colors_land1, colors_land2))
+        # cut_terrain_map = colors.LinearSegmentedColormap.from_list('cut_terrain', _colors)
+        #
+        # img_transparent_back = copy.copy(img)
+        # img_transparent_back[img_transparent_back < 0.005] = np.nan
+        #
+        # with sns.plotting_context("talk"):
+        #     fig, ax = plt.subplots(figsize=(15, 9))
+        #     sns.heatmap(
+        #         data=df,
+        #         vmin=0,
+        #         vmax=5000,
+        #         cmap=cut_terrain_map,
+        #         zorder=1
+        #     )
+        #
+        #     ax.imshow(
+        #         img_transparent_back,
+        #         extent=[-30, 410, 265, -10],
+        #         zorder=2,
+        #         alpha=0.25,  # transparentność
+        #
+        #     )
+
+        fig, axis = plt.subplots(nrows=1, ncols=1, figsize=(18, 9))
+
+        sns.scatterplot(
+            x=df_testing_set['x-coordinate'],
+            y=df_testing_set['y-coordinate'],
+            s=y_test_pred_dt / 2,
+            hue=y_test_pred_dt,
+            palette=sns.color_palette('ch:start=.6,rot=-.3', as_cmap=True),
+        ).set(title='Decision Tree r2 score: ' + str(score_dt))
+
+        _, labels_init = axis.get_legend_handles_labels()
+        n_labels = len(labels_init)
+
+        legend1 = axis.legend()
+        axis.add_artist(legend1)
+
+        for my_point in my_points.values():
+            my_point_scaled = scaler.transform(my_point)
+            my_point_pred = regression_model.predict(my_point_scaled)
+            my_point_pred = np.round(my_point_pred)
+            sns.scatterplot(
+                x=[my_point[0][0]],
+                y=[my_point[0][1]],
+                s=my_point_pred[0] / 2,
+                label=my_point_pred[0]
+            )
+
+            # arrowprops = dict(
+            #     arrowstyle="->",
+            #     connectionstyle="angle, angleA = 0, angleB = 90,\
+            #     rad = 10")
+            #
+            # plt.annotate(
+            #     my_point_pred[0],
+            #     xy=(my_point[0][0], my_point[0][1] - 10),
+            #     xytext=(my_point[0][0], my_point[0][1] - 25000),
+            #     arrowprops=arrowprops
+            # )
+
+        handles, labels = axis.get_legend_handles_labels()
+        handles, labels = handles[n_labels:], labels[n_labels:]
+
+        if handles:
+            legend2 = axis.legend(
+                handles=handles,
+                labels=[float(label) for label in labels],
+                loc='upper left'
+            )
+            axis.add_artist(legend2)
+
+        return fig
+
+if option == 'SVM':
+
+    def predict_user_point_SVM(my_points, x_input):
+        # colors_land1 = plt.cm.terrain(np.linspace(0.35, 0.42, 200))
+        # colors_land2 = plt.cm.terrain(np.linspace(0.45, 0.85, 2000))
+        #
+        # _colors = np.vstack((colors_land1, colors_land2))
+        # cut_terrain_map = colors.LinearSegmentedColormap.from_list('cut_terrain', _colors)
+        #
+        # img_transparent_back = copy.copy(img)
+        # img_transparent_back[img_transparent_back < 0.005] = np.nan
+        #
+        # with sns.plotting_context("talk"):
+        #     fig, ax = plt.subplots(figsize=(15, 9))
+        #     sns.heatmap(
+        #         data=df,
+        #         vmin=0,
+        #         vmax=5000,
+        #         cmap=cut_terrain_map,
+        #         zorder=1
+        #     )
+        #
+        #     ax.imshow(
+        #         img_transparent_back,
+        #         extent=[-30, 410, 265, -10],
+        #         zorder=2,
+        #         alpha=0.25,  # transparentność
+        #
+        #     )
+
+        fig, axis = plt.subplots(nrows=1, ncols=1, figsize=(18, 9))
+
+        sns.scatterplot(
+            x=df_testing_set['x-coordinate'],
+            y=df_testing_set['y-coordinate'],
+            s=y_test_pred_svm / 2,
+            hue=y_test_pred_svm,
+            palette=sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True),
+        ).set(title='SVM r2 score: ' + str(score_svm))
+
+        _, labels_init = axis.get_legend_handles_labels()
+        n_labels = len(labels_init)
+
+        legend1 = axis.legend()
+        axis.add_artist(legend1)
+
+        for my_point in my_points.values():
+            my_point_scaled = scaler.transform(my_point)
+            my_point_pred = regression_model_svm.predict(my_point_scaled)
+            my_point_pred = np.round(my_point_pred)
+            sns.scatterplot(
+                x=[my_point[0][0]],
+                y=[my_point[0][1]],
+                s=my_point_pred[0] / 2,
+                label=my_point_pred[0]
+            )
+
+            # arrowprops = dict(
+            #     arrowstyle="->",
+            #     connectionstyle="angle, angleA = 0, angleB = 90,\
+            #     rad = 10")
+            #
+            # plt.annotate(
+            #     my_point_pred[0],
+            #     xy=(my_point[0][0], my_point[0][1] - 10),
+            #     xytext=(my_point[0][0], my_point[0][1] - 25000),
+            #     arrowprops=arrowprops
+            # )
+
+        handles, labels = axis.get_legend_handles_labels()
+        handles, labels = handles[n_labels:], labels[n_labels:]
+
+        if handles:
+            legend2 = axis.legend(
+                handles=handles,
+                labels=[float(label) for label in labels],
+                loc='upper left'
+            )
+            axis.add_artist(legend2)
+
+        return fig
 
 
-x_input = st.slider('X-coordinate: ', -175000, 200000, 12500)
-y_input = st.slider('Y-coordinate: ', -110000, 110000, 0)
-elevation_input = st.slider('Elevation: ', 0, 1000, 500)
+x_input = st.slider('X-coordinate: ', -175000, 200000, 12500, step=1000)
+y_input = st.slider('Y-coordinate: ', -110000, 110000, 0, step=1000)
+elevation_input = st.slider('Elevation: ', 0, 1000, 500, step=10)
 
 if st.button('Apply'):
     if f'{x_input}, {y_input}, {elevation_input}' not in st.session_state:
         st.session_state[f'{x_input}, {y_input}, {elevation_input}'] = ((x_input, y_input, elevation_input),)
-    st.pyplot(predict_user_point(st.session_state, x_input))
-    st.table(st.session_state)
+    st.pyplot(predict_user_point_SVM(st.session_state, x_input))
+    # st.table(st.session_state)
 
 else:
     if st.session_state:
-        st.pyplot(predict_user_point(st.session_state, x_input))
+        st.pyplot(predict_user_point_SVM(st.session_state, x_input))
     else:
-        st.pyplot(predict_user_point(dict(), x_input))
-    st.table(st.session_state)
+        st.pyplot(predict_user_point_SVM(dict(), x_input))
+    # st.table(st.session_state)
